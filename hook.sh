@@ -22,7 +22,10 @@ transaction() {
 transaction "$ME/create.sql" | $COMMAND
 
 # Get the last db version
-LAST=$(transaction "$ME/last.sql" | $COMMAND -ss) || "0"
+LAST=$(transaction "$ME/last.sql" | $COMMAND -ss)
+if [ -z $LAST ]; then
+	LAST=0
+fi
 echo "We are on version $LAST"
 
 # Now, lets apply everything from our current version onwards
