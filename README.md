@@ -9,7 +9,7 @@ Die Datenbank konfiguration wird mittels eines Skripts `sql/env` übergeben. Die
 MYSQL_DB=dbname
 MYSQL_HOST=hostname
 MYSQL_USER=username
-MYSQL_PASS=password
+MYSQL_PWD=password
 ```
 
 ## Git hook
