@@ -19,10 +19,10 @@ transaction() {
 }
 
 # Create migration table if neccessary
-transaction "$ME/create.sql" | $COMMAND
+transaction <("$ME/create.sh") | $COMMAND
 
 # Get the last db version
-LAST=$(transaction "$ME/last.sql" | $COMMAND -ss)
+LAST=$(transaction <("$ME/last.sh") | $COMMAND -ss)
 if [ -z $LAST ]; then
 	LAST=0
 fi

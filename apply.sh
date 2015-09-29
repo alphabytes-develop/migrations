@@ -1,2 +1,2 @@
 #!/bin/bash
-echo 'INSERT INTO `alphabytes_migrations` (`version`) VALUES ('$1');';
+echo 'INSERT INTO `'$MYSQL_TABLE'` (`version`) VALUES ('$1');'

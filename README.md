@@ -10,6 +10,7 @@ MYSQL_DB=dbname
 MYSQL_HOST=hostname
 MYSQL_USER=username
 MYSQL_PWD=password
+MYSQL_TABLE=migrationtable
 ```
 
 ## Git hook
