@@ -11,7 +11,7 @@ echo "Starting database migration from directory $THEM"
 
 # Get the configuration of the connection/db
 export $($THEM/env)
-COMMAND="mysql -u $MYSQL_USER -D $MYSQL_DB"
+COMMAND="mysql -u $MYSQL_USER -D $MYSQL_DB --host=$MYSQL_HOST -P $MYSQL_PORT -p$MYSQL_PWD"
 
 # Creates a transaction from a file
 transaction() {
