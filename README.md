@@ -1,7 +1,10 @@
 # Minimale Datenbankmigrationen für Git
 Kleines Tool, welches Datenbankmigrationen/Datenbankversionierung vereinfachen sollte. Nur vorwärts migrationen möglich.
 
-Migrationen sollten im Projektverzeichnis unter `sql/migrations` zu finden sein. Migrationen sollten durchnummeriert sein (`1.sql`, `2.sql` etc.).
+Migrationen ~~sollten~~ müssen im Projektverzeichnis unter `sql/migrations` zu finden sein. Migrationen ~~sollten~~ müssen durchnummeriert sein (`1.sql`, `2.sql` etc.).
+
+_Verbesserungsvorschlag: Nummer vor .sql auf feste Stellenanzahl erweitern (z.B. `001.sql`, `002.sql`), damit die Dateisortierung mit der Reihenfolge
+übereinstimmt. (CB, 13.04.2016)_
 
 Die Datenbank konfiguration wird mittels eines Skripts `sql/env` übergeben. Dieses Skript sollte eine Textausgabe wie folgt erzeugen:
 
