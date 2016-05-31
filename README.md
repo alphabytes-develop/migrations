@@ -13,7 +13,7 @@ return [
     'user' => '',
     'password' => '',
     'table' => 'migrations',
-    'migrations' => 'migrations',
+    'migrations' => 'migrations'
 ];
 ```
 

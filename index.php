@@ -1,15 +1,59 @@
 <?php
-$them = getcwd() . '/migrations/';
-$config = require($them . '/config.php');
+require_once(__DIR__ . '/setup/db.php');
+require_once(__DIR__ . '/setup/config.php');
+require_once(__DIR__ . '/setup/migrations.php');
+require_once(__DIR__ . '/setup/db-migrations.php');
 
-require(__DIR__ . '/setup/db.php');
-require(__DIR__ . '/setup/migrations.php');
-require(__DIR__ . '/setup/db-migrations.php');
+/* Apply a single migration */
+function apply($db, $migration, $dryrun = false) {
+	echo "Applying $migration[no]@$migration[hash]\n";
+
+	if($dryrun) {
+		return;
+	}
+
+	/* Apply the migration */
+	$db->query($migration['upSql']);
+
+	/* Write it to the migrations table */
+	$config = getConfig();
+	$stmt = $db->prepare("
+		INSERT INTO `$config[table]` (`version`, `hash`, `rollback`) VALUES (:version, :hash, :rollback)
+	");
+
+	$stmt->execute([
+		'version' => $migration['no'],
+		'hash' => $migration['hash'],
+		'rollback' => $migration['downSql']
+	]);
+}
+
+/* Rollback a single migration */
+function rollback($db, $dbMigration, $dryrun = false) {
+	echo "Rolling back $dbMigration[version]@$dbMigration[hash]\n";
+
+	if($dryrun) {
+		return;
+	}
+
+	/* Roll back the migration */
+	$db->query($dbMigration['rollback']);
+
+	/* Remove it from the migrations table */
+	$config = getConfig();
+	$stmt = $db->prepare("
+		DELETE FROM `$config[table]` WHERE `version` = :version
+	");
+
+	$stmt->execute([
+		'version' => $dbMigration['version']
+	]);
+}
 
 /* Get the last correct migration which was applied */
-function findLastValidVersion() {
-	global $migrations;
-	global $dbMigrations;
+function findLastValidVersion($db) {
+	$migrations = getMigrations();
+	$dbMigrations = getDbMigrations($db);
 
 	$last = 0;
 	foreach($migrations as $version => $migration) {
@@ -35,81 +79,48 @@ function findLastValidVersion() {
 }
 
 /* Remove all migrations until we reach a specific version */
-function rollbackToVersion($version, $dryrun = false) {
-	global $dbMigrations;
-
-	$invertedMigrations = array_reverse($dbMigrations);
+function rollbackToVersion($db, $version, $dryrun = false) {
+	$invertedMigrations = array_reverse(getDbMigrations($db));
 
 	foreach($invertedMigrations as $dbMigration) {
 		if($dbMigration['version'] > $version) {
-			rollback($dbMigration, $dryrun);
+			rollback($db, $dbMigration, $dryrun);
 		}
 	}
 }
 
-/* Rollback a single migration */
-function rollback($dbMigration, $dryrun = false) {
-	global $db;
-	global $config;
-
-	echo "Rolling back $dbMigration[version]@$dbMigration[hash]\n";
-
-	if($dryrun) {
-		return;
-	}
-
-	/* Roll back the migration */
-	$db->query($dbMigration['rollback']);
-
-	/* Remove it from the migrations table */
-	$stmt = $db->prepare("
-		DELETE FROM `$config[table]` WHERE `version` = :version
-	");
-
-	$stmt->execute([
-		'version' => $dbMigration['version']
-	]);
-}
-
-/* Apply a single migration */
-function apply($migration, $dryrun = false) {
-	global $db;
-	global $config;
-
-	echo "Applying $migration[no]@$migration[hash]\n";
-
-	if($dryrun) {
-		return;
-	}
-
-	/* Apply the migration */
-	$db->query($migration['upSql']);
-
-	/* Write it to the migrations table */
-	$stmt = $db->prepare("
-		INSERT INTO `$config[table]` (`version`, `hash`, `rollback`) VALUES (:version, :hash, :rollback)
-	");
-
-	$stmt->execute([
-		'version' => $migration['no'],
-		'hash' => $migration['hash'],
-		'rollback' => $migration['downSql']
-	]);
-}
-
 /* Get the db to the current directories state */
-function applyAll($dryrun = false) {
-	global $migrations;
-
-	$lastValid = findLastValidVersion();
+function applyAll($db, $dryrun = false) {
+	$lastValid = findLastValidVersion($db);
+	$migrations = getMigrations();
 
 	/* Get to a clean state */
-	rollbackToVersion($lastValid, $dryrun);
+	rollbackToVersion($db, $lastValid, $dryrun);
 
 	/* Apply any available newer versions */
 	foreach($migrations as $migration) {
 		if($migration['no'] > $lastValid) {
-			apply($migration, $dryrun);
+			apply($db, $migration, $dryrun);
 		}
 	}
+}
+
+/* Run a test against another database */
+function test($database) {
+	$config = getConfig();
+
+	if($database === $config['database']) {
+		echo "You cannot run a test against the same database that is set in your config!\n";
+		exit(1);
+	}
+
+	$db = initiateDb($config['database']);
+	$db->query("DROP DATABASE IF EXISTS `$database`");
+	$db->query("CREATE DATABASE `$database`");
+
+	$mockDb = initiateDb($database);
+	applyAll($mockDb);
+	rollbackToVersion($mockDb, 0);
+
+	$db->query("DROP DATABASE IF EXISTS `$database`");
 }

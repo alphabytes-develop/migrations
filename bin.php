@@ -16,6 +16,9 @@ if(count($argv) < 2) {
 	exit(1);
 }
 
+$db = initiateDb(getConfig()['database']);
+$dbMigrations = getDbMigrations($db);
+
 switch($argv[1]) {
 	case 'test':
 		if(count($argv) < 3) {
@@ -23,25 +26,10 @@ switch($argv[1]) {
 			exit(1);
 		}
 
-		if($argv[2] === $config['database']) {
-			echo "You cannot run a test against the same database that is set in your config!\n";
-			exit(1);
-		}
-
-		$db->query("DROP DATABASE IF EXISTS `$argv[2]`");
-		$db->query("CREATE DATABASE `$argv[2]`");
-
-		$config['database'] = $argv[2];
-		require(__DIR__ . '/setup/db.php');
-		require(__DIR__ . '/setup/db-migrations.php');
-
-		applyAll();
-		require(__DIR__ . '/setup/db-migrations.php');
-		rollbackToVersion(0);
-		$db->query("DROP DATABASE IF EXISTS `$argv[2]`");
+		test($argv[2]);
 		break;
 	case 'apply':
-		applyAll(count($argv) === 2 ? false : true);
+		applyAll($db, count($argv) === 2 ? false : true);
 		break;
 	case 'status':
 		if(count($dbMigrations) > 0) {
@@ -58,7 +46,7 @@ switch($argv[1]) {
 			$num = $argv[2];
 		}
 
-		rollbackToVersion(count($dbMigrations) - $num);
+		rollbackToVersion($db, count(getDbMigrations($db)) - $num);
 		break;
 	default:
 		printInfo();
