@@ -2,7 +2,9 @@
 
 function getMigrations() {
 	$directory = getConfig()['migrations'];
-	$migrations = array_values(array_filter(scandir($directory), function($entry) { return $entry !== '.' && $entry !== '..'; }));
+	$migrations = array_values(array_filter(scandir($directory), function($entry) use($directory) {
+		return $entry !== '.' && $entry !== '..' && is_dir($directory . '/' . $entry);
+	}));
 
 	/* Sort them because file names are strings and we need numerical ordering */
 	natsort($migrations);

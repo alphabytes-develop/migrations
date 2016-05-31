@@ -9,7 +9,7 @@ function getConfig() {
 	}
 
 	$config = require($file);
-	$config['migrations'] = $them . $config['migrations'];
+	$config['migrations'] = $them;
 
 	return $config;
 }

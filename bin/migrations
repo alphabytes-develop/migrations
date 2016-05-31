@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?php
-require_once(__DIR__ . '/index.php');
+require_once(__DIR__ . '/../src/index.php');
 
 function printInfo() {
 	echo 'The following tasks are available:

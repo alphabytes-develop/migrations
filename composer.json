@@ -1,0 +1,9 @@
+{
+  "license": "BSD-3-Clause",
+  "name": "alphabytes/migrations",
+  "bin": ["bin/migrations"],
+  "authors": [{
+    "name": "alphabytes",
+    "email": "develop@alphabytes.de"
+  }]
+}

@@ -1,5 +1,10 @@
 # Minimale Datenbankmigrationen für Git
-Kleines Tool, welches Datenbankmigrationen/Datenbankversionierung vereinfachen sollte.
+Ein kleines Tool, welches Datenbankmigrationen/Datenbankversionierung vereinfachen sollte.
+
+## Installation
+```bash
+composer install alphabytes/migrations
+```
 
 ## config.php
 Zunächst sollte eine `config.php` Datei im Projektverzeichnis unter `migrations/config.php` angelegt werden.
@@ -12,16 +17,14 @@ return [
     'database' => '',
     'user' => '',
     'password' => '',
-    'table' => 'migrations',
-    'migrations' => 'migrations'
+    'table' => 'migrations'
 ];
 ```
 
 `table` spezifiziert die Tabelle in welche die Migrationsinfos geschrieben werden.
-`migrations` gibt den Ordner an, in welchem die Migrationsdateien liegen (relativ zur config Datei).
 
 ## Migrationsverzeichnis
-Im durch`migrations` definierten Migrationsverzeichnis sollte pro Migration ein Unterordner angelegt werden. Diese Ordner sollten durchnummeriert sein (beginnend bei 1).
+Im selben Migrationsverzeichnis sollte pro Migration ein Unterordner angelegt werden. Diese Ordner sollten durchnummeriert sein (beginnend bei 1).
 In jedem Verzeichnis ist eine `up.sql` und eine `down.sql` Datei abzulegen, welche die Migration anwenden bzw. rückgängig machen.
 
 ## git
@@ -29,7 +32,7 @@ Das Tool speichert den git hash der jeweils letzten Änderung einer jeden Migrat
 Dies ermöglicht es auch bei Mergekonflikten oder Zweigwechseln immer einen sauberen Stand zu halten.
 
 ## CLI
-Um die Migrationen anzuwenden sollte die `bin.php` Datei ausgeführt werden.
+Um die Migrationen anzuwenden sollte das Tool via `./vendor/bin/migrations` ausgeführt werden.
 Das aktuelle Arbeitsverzeichnis sollte dem Projektordner entsprechen.
 
 Folgende Operationen sind möglich:
