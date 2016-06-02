@@ -9,6 +9,9 @@ function getMigrations() {
 	/* Sort them because file names are strings and we need numerical ordering */
 	natsort($migrations);
 
+	/* PHP keeps the keys even though we reorder. WHY??? */
+	$migrations = array_values($migrations);
+
 	/* Parse them into full paths for up/down */
 	$migrations = array_map(function($migration) use($directory) {
 		return [

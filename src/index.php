@@ -4,6 +4,13 @@ require_once(__DIR__ . '/setup/config.php');
 require_once(__DIR__ . '/setup/migrations.php');
 require_once(__DIR__ . '/setup/db-migrations.php');
 
+function query($db, $sql) {
+	$stmt = $db->query($sql);
+
+	/* PDO only throws on non-first query if we actually iterate over the rowset??? */
+	while($stmt->nextRowset()) {}
+}
+
 /* Apply a single migration */
 function apply($db, $migration, $dryrun = false) {
 	echo "Applying $migration[no]@$migration[hash]\n";
@@ -13,7 +20,7 @@ function apply($db, $migration, $dryrun = false) {
 	}
 
 	/* Apply the migration */
-	$db->query($migration['upSql']);
+	query($db, $migration['upSql']);
 
 	/* Write it to the migrations table */
 	$config = getConfig();
@@ -37,7 +44,9 @@ function rollback($db, $dbMigration, $dryrun = false) {
 	}
 
 	/* Roll back the migration */
-	$db->query($dbMigration['rollback']);
+	if($dbMigration['rollback'] !== '') {
+		query($db, $dbMigration['rollback']);
+	}
 
 	/* Remove it from the migrations table */
 	$config = getConfig();
@@ -119,8 +128,24 @@ function test($database) {
 	$db->query("CREATE DATABASE `$database`");
 
 	$mockDb = initiateDb($database);
-	applyAll($mockDb);
-	rollbackToVersion($mockDb, 0);
+	$migrations = getMigrations();
+
+	for($version = 0; $version < count($migrations); $version++) {
+		apply($mockDb, $migrations[$version]);
+
+		if(isset($migrations[$version + 1])) {
+			apply($mockDb, $migrations[$version + 1]);
+			rollbackToVersion($mockDb, $version + 1);
+		}
+	}
+
+	for($version = count($migrations) - 1; $version >= 0; $version--) {
+		rollbackToVersion($mockDb, $version);
+
+		if($version > 0) {
+			apply($mockDb, $migrations[$version]);
+		}
+	}
 
 	$db->query("DROP DATABASE IF EXISTS `$database`");
 }
