@@ -3,7 +3,7 @@ function initiateDb($database) {
 	$config = getConfig();
 
 	$db = new PDO(
-		"mysql:host=$config[host];dbname=$database",
+		"mysql:host=$config[host];dbname=$database;charset=UTF8",
 		$config['user'],
 		$config['password'],
 		[
