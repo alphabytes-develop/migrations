@@ -27,8 +27,8 @@ return [
 Im selben Migrationsverzeichnis sollte pro Migration ein Unterordner angelegt werden. Diese Ordner sollten durchnummeriert sein (beginnend bei 1).
 In jedem Verzeichnis ist eine `up.sql` und eine `down.sql` Datei abzulegen, welche die Migration anwenden bzw. rückgängig machen.
 
-## git
-Das Tool speichert den git hash der jeweils letzten Änderung einer jeden Migration in die Datenbank.
+## Dateihashes
+Das Tool speichert den Dateihash der jeweils letzten Änderung einer jeden Migration in die Datenbank.
 Dies ermöglicht es auch bei Mergekonflikten oder Zweigwechseln immer einen sauberen Stand zu halten.
 
 ## CLI
@@ -38,8 +38,8 @@ Das aktuelle Arbeitsverzeichnis sollte dem Projektordner entsprechen.
 Folgende Operationen sind möglich:
 
 ### test <db>
-Wendet alle Migrationen (beginnend mit 1) auf die angegebene Datenbank an und macht sie danach dückgängig.
-Nützlich um korrektheit von Migrationen zu überprüfen.
+Wendet alle Migrationen (beginnend mit 1) auf die angegebene Datenbank an und macht sie danach rückgängig.
+Nützlich um Korrektheit von Migrationen zu überprüfen.
 
 ### apply <dryrun>
 Wendet alle Migrationen auf die in der Konfiguration eingestellte Datenbank an.
