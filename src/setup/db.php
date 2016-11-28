@@ -16,7 +16,7 @@ function initiateDb($database) {
 	$db->query("
 	CREATE TABLE IF NOT EXISTS `$config[table]` (
 	  `version` int(11) unsigned NOT NULL,
-	  `hash` varchar(40) NOT NULL,
+	  `hash` varchar(64) NOT NULL,
 	  `rollback` TEXT NOT NULL,
 	  PRIMARY KEY (`version`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8;"

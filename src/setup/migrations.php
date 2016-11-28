@@ -40,9 +40,8 @@ function getMigrations() {
 			exit(1);
 		}
 
-		$output = [];
 		$return = 0;
-		$migration['hash'] = exec("git log -n 1 --pretty=format:%H -- '$migration[dir]'", $output, $return);
+		$migration['hash'] = hash('sha256', hash_file('sha256', $migration['up']) . hash_file('sha256', $migration['down']));
 		$migration['upSql'] = file_get_contents($migration['up']);
 		$migration['downSql'] = file_get_contents($migration['down']);
 
